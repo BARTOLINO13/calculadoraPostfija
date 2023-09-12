@@ -72,7 +72,6 @@ public class Algoritmo {
     public static ArrayList convertidor(String cad) {
         int i = 0;
         double numero = 0;
-        boolean band = true;
         ArrayList postfijo = new ArrayList();
         Character ch;
         PilaA pila = new PilaA();
@@ -129,12 +128,15 @@ public class Algoritmo {
         return postfijo;
     }
 
-    public boolean checarSignos(String revisar) {
+   public static boolean checarSignos(String revisar) {
         boolean correcto = true;
         PilaA<Character> signos = new PilaA();
         int tamanho, i;
         Character signo;
 
+        signo = revisar.charAt(0);
+        if(signo == '+' || signo == '*' || signo == '/' || signo == '^' || signo == '-')
+            correcto=false;
         tamanho = revisar.length();
         i = 0;
         while (i < tamanho && correcto) {
@@ -157,7 +159,6 @@ public class Algoritmo {
         }
         return correcto;
     }
-
     public double evalua(ArrayList postfijo) {
         double ans;
         double v;
