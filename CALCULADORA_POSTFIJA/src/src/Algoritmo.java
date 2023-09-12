@@ -4,6 +4,7 @@
  */
 package src;
 
+import static java.lang.Math.pow;
 import java.util.ArrayList;
 import pilas.PilaA;
 
@@ -128,7 +129,7 @@ public class Algoritmo {
         return postfijo;
     }
 
-    public static boolean checarSignos(String revisar) {
+    public boolean checarSignos(String revisar) {
         boolean correcto = true;
         PilaA<Character> signos = new PilaA();
         int tamanho, i;
@@ -156,14 +157,81 @@ public class Algoritmo {
         }
         return correcto;
     }
-    
+
+    public double evalua(ArrayList postfijo) {
+        double ans;
+        double v;
+        double x, y;
+        PilaA<Double> pila = new PilaA();
+        Character p;
+        for (int i = 0; i < postfijo.size(); i++) {
+            System.out.println(postfijo.get(i));
+
+            try {
+                pila.push((Double) postfijo.get(i));
+            } catch (ClassCastException err) {
+                p = (Character) postfijo.get(i);
+                switch (p) {
+                    default:
+                        break;
+                    case '+':
+                        x = (double) pila.pop();
+                        y = (double) pila.pop();
+
+                        v = x + y;
+
+                        pila.push(v);
+                        break;
+                    case '-':
+                        x = (double) pila.pop();
+                        y = (double) pila.pop();
+
+                        v = y - x;
+
+                        pila.push(v);
+                        break;
+
+                    case '*':
+                        x = (double) pila.pop();
+                        y = (double) pila.pop();
+
+                        v = x * y;
+
+                       pila.push(v);
+                        break;
+                    case '/':
+                        x = (double) pila.pop();
+                        y = (double) pila.pop();
+
+                        v = y / x;
+                        pila.push(v);
+                        break;
+
+                    case '^':
+                        x = (double) pila.pop();
+                        y = (double) pila.pop();
+                        v = pow(x, y);
+                        pila.push(v);
+                        break;
+                }
+            }
+
+        }
+
+        ans = (double) pila.pop();
+        return ans;
+    }
+
     public static void main(String[] args) {
         Algoritmo algo = new Algoritmo();
 
-        System.out.println(algo.convertidor("(1+2)*3"));
-        System.out.println(algo.convertidor("(1+2)/3"));
-        System.out.println(algo.convertidor("(1-2)*3"));
-        System.out.println(algo.convertidor("3*(1+2)"));
-        System.out.println(algo.convertidor("1+2*3"));
+        ArrayList lista = algo.convertidor("(1+2)*2");
+        System.out.println(algo.evalua(lista));
+//        System.out.println(algo.convertidor("(1+2)*3"));
+//        System.out.println(algo.convertidor("(1+2)/3"));
+//        System.out.println(algo.convertidor("(1-2)*3"));
+//        System.out.println(algo.convertidor("3*(1+2)"));
+//        System.out.println(algo.convertidor("1+2*3"));
+//        System.out.println(algo.checarSignos("1+*2"));
     }
 }
