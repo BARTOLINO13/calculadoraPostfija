@@ -17,6 +17,34 @@ public class Algoritmo {
 
     }
 
+     public static boolean revisadorPuntos(String revisa){
+        boolean resp= true;
+        
+        boolean band= true;
+        boolean bandera= false;
+        int contPuntos=0;
+        int i=0;
+        
+        while(i< revisa.length() && band){
+            if (revisa.charAt(i) == '.'){
+                 contPuntos+=1;
+            }           
+            if(revisa.charAt(i) == '+' || revisa.charAt(i) =='-' ||revisa.charAt(i) == '*' ||revisa.charAt(i) == '/'||revisa.charAt(i) == '^'){
+                bandera= true;
+            }           
+            if(contPuntos > 1 && !bandera){
+                band= false;
+            }
+            i++;
+        }                
+        if(band == true){
+            return  resp;
+        } else 
+            resp= false;
+                    return resp;
+        
+    }
+    
     private static boolean revisadorParentesis(String revisa) {
         PilaA<Character> pila = new PilaA<>();
         boolean res = false;
