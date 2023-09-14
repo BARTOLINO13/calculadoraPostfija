@@ -32,8 +32,7 @@ public class Algoritmo {
             }           
             if(revisa.charAt(i) == '+' || revisa.charAt(i) =='-' ||revisa.charAt(i) == '*' ||revisa.charAt(i) == '/'||revisa.charAt(i) == '^'){
                 bandera= true;
-                band=true;
-                
+                band=true;            
             }           
             if(contPuntos > 1 && !bandera){
                 band= false;
