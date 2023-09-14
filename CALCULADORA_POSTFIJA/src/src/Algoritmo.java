@@ -17,7 +17,7 @@ public class Algoritmo {
 
     }
 
-     public static boolean revisadorPuntos(String revisa){
+    public static boolean revisadorPuntos(String revisa){
         boolean resp= true;
         
         boolean band= true;
@@ -28,9 +28,12 @@ public class Algoritmo {
         while(i< revisa.length() && band){
             if (revisa.charAt(i) == '.'){
                  contPuntos+=1;
+                 bandera=false;
             }           
             if(revisa.charAt(i) == '+' || revisa.charAt(i) =='-' ||revisa.charAt(i) == '*' ||revisa.charAt(i) == '/'||revisa.charAt(i) == '^'){
                 bandera= true;
+                band=true;
+                
             }           
             if(contPuntos > 1 && !bandera){
                 band= false;
@@ -41,8 +44,7 @@ public class Algoritmo {
             return  resp;
         } else 
             resp= false;
-                    return resp;
-        
+                    return resp;   
     }
     
     private static boolean revisadorParentesis(String revisa) {
