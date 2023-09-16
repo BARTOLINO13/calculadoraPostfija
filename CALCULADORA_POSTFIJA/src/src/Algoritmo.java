@@ -1,4 +1,7 @@
-
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package src;
 
 import java.util.ArrayList;
@@ -7,79 +10,66 @@ import pilas.PilaADT;
 import pilas.ExceptionColeccionVacia;
 
 /**
- *
- * @author maher
+ * Adolfo Yúnez, Patricio Bartolino Miguel Herrera, Bernardo del Río, Tomás Boom
+ * Agosto-Septiembre 2023
+ * Esto es un programa el cual a través de una cadena con operaciones, va a convertir las operaciones de infijo a postfijo para después evaluarlas y respetar el PEMDAS.
  */
 
-public class Algoritmo {
-    private String operaciones;
+public class Calculadora {
+    private String operaciones; //Vamos a crear una clase calculadora y su único atributo va a ser la cadena.
     
-    public Algoritmo(String operaciones){
+    public Calculadora(){
+        
+    }
+    
+    public Calculadora(String operaciones){
         this.operaciones=operaciones;
     }
+    
+    public void setOperaciones(String operaciones){
+        this.operaciones=operaciones;
+    }
+    
+    public String getOperaciones(){
+        return operaciones;
+    }
+    
+    //Este es un método para analizar si el carácter es operador y mejorar la sintáxis de los programas.
+    private boolean esOperador (Character ch){
+        boolean res=false;
+        
+        if(ch == '+' || ch == '*' || ch == '/' || ch == '^' || ch == '-')
+            res=true;
+        return res;
+    }
 
-     public boolean revisadorPuntos(){//AFIRMA QUE LA SINTAXIS DE PUNTOS ESTÉ CORRECTA
-        boolean resp= true;
-        
-        boolean band= true;
-        boolean bandera= false;
+    //Los siguientes métodos son para la revisión de sintáxis
+    //Este primer método va a revisar la puntuación, es decir, evitar que el usuario ponga 1..0, ya que esto no es un número.
+     public boolean revisadorPuntos(){
+        boolean correcto= true;
         int contPuntos=0;
         int i=0;
         
-        while(i< operaciones.length() && band){
-            if (operaciones.charAt(i) == '.'){
+        while(i< operaciones.length() && correcto){ //Se utiliza un while porque hay una bandera.
+            //Si hay puntos, se van a contar todos los puntos que existen antes de un operador.
+            if (operaciones.charAt(i) == '.'){ 
                  contPuntos+=1;
             }           
-            if(esOperador(operaciones.charAt(i)) || operaciones.charAt(i) == '!'){
-                bandera= true;
+            else{
+                //Cuando encuentre un operador, la cuenta se va a reiniciar, ya que significa que luego se va a utilizar otro número.
+                if(esOperador(operaciones.charAt(i)) || operaciones.charAt(i) == '!') //El símbolo '!' que significa (-) también se vuelve parámetro.
+                    contPuntos=0;
             }           
-            if(contPuntos > 1 && !bandera){
-                band= false;
-            }
+            if(contPuntos > 1) //Si el contador es mayor a 1, significa que hay dos puntos antes de un operador, por ende la sintáxis está mal.
+                correcto= false;
             i++;
         }                
-        if(band == true){
-            return  resp;
-        } else 
-            resp= false;
-                    return resp;
-        
+        return correcto;
     }
     
+     //El siguiente método revisa que los parámetros estén bien balanceados, es decir, que cada '(' tenga un ')'.
     public boolean revisadorParentesis() {
-=======
-    public static boolean revisadorPuntos(String revisa){
-        boolean resp= true;
-        
-        boolean band= true;
-        boolean bandera= false;
-        int contPuntos=0;
-        int i=0;
-        
-        while(i< revisa.length() && band){
-            if (revisa.charAt(i) == '.'){
-                 contPuntos+=1;
-                 bandera=false;
-            }           
-            if(revisa.charAt(i) == '+' || revisa.charAt(i) =='-' ||revisa.charAt(i) == '*' ||revisa.charAt(i) == '/'||revisa.charAt(i) == '^'){
-                bandera= true;
-                band=true;            
-            }           
-            if(contPuntos > 1 && !bandera){
-                band= false;
-            }
-            i++;
-        }                
-        if(band == true){
-            return  resp;
-        } else 
-            resp= false;
-                    return resp;   
-    }
-    
-    private static boolean revisadorParentesis(String revisa) {
->>>>>>> origin/master
-        PilaA<Character> pila = new PilaA<>();
+        PilaA<Character> pila = new PilaA<>(); //Se utiliza una pila, porque es lo más eficiente.
         boolean res = false;
         boolean ban = true;
         int i = 0;
@@ -87,18 +77,18 @@ public class Algoritmo {
 
         while (i < operaciones.length() && ban) {
             if (operaciones.charAt(i) == '(') {
-                ch = operaciones.charAt(i);
+                ch = operaciones.charAt(i); //Cuando encuentre un paréntesis '(' se agrega a la pila.
                 pila.push(ch);
-            } else if (operaciones.charAt(i) == ')') {
-                if (pila.isEmpty()) {
-                    ban = false;
+            } else if (operaciones.charAt(i) == ')') { //Cuando encuentra el contrario, i.e, ')' entonces:
+                if (pila.isEmpty()) {//Pregunta si existió un paréntesis '(' antes.
+                    ban = false; //Si no, arroja un error, ya que no está balanceado.
                 } else {
-                    pila.pop();
+                    pila.pop(); //Si sí, saca el paréntesis de la pila, porque ya encontró a su pareja.
                 }
             }
             i++;
         }
-        if (pila.isEmpty() && ban) {
+        if (pila.isEmpty() && ban) { //La pila tiene que terminar vacía para que si estén bien balanceados.
             res = true;
         }
         return res;
@@ -142,14 +132,6 @@ public class Algoritmo {
         if(!negativo.isEmpty() && correcto)
             correcto =false;
         return correcto;
-    }
-    
-    private boolean esOperador (Character ch){
-        boolean res=false;
-        
-        if(ch == '+' || ch == '*' || ch == '/' || ch == '^' || ch == '-')
-            res=true;
-        return res;
     }
 
     private int prioridades(Character op) {
@@ -321,10 +303,10 @@ public class Algoritmo {
     }
 
     public static void main(String[] args) {
-        Algoritmo calc;
+        Calculadora calc;
         ArrayList convertidor;
         
-        calc=new Algoritmo("!2^");
+        calc=new Calculadora("1.0+2.0");
         if(calc.revisadorParentesis() && calc.revisadorPuntos() && calc.revisadorSignos()){
             convertidor=calc.convertidor();
             System.out.println(convertidor);
@@ -334,6 +316,3 @@ public class Algoritmo {
             System.out.println("SYNTAX_ERROR");
     }
 }
-
-
-
