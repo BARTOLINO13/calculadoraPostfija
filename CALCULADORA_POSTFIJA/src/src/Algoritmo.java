@@ -94,13 +94,18 @@ public class Calculadora {
         return res;
     }
     
-    public boolean revisadorSignos() {
-        boolean correcto = true;
+public boolean revisadorSignos() {
+        boolean correcto = true; //Esta es la bandera.
         PilaA<Character> signos = new PilaA();
-        PilaA<Character> negativo = new PilaA();
+        PilaA<Character> negativo = new PilaA(); //Se crea una pila aparte para revisar que no existan dos !!, ni tampoco un !+, !-, !*, etc.
         int tamanho, i=0;
         Character ch;
         
+        ch=operaciones.charAt(0);
+        if(esOperador(ch))
+            correcto=false;
+        else
+            i++;
         tamanho=operaciones.length();
         while(i<tamanho && correcto){
             ch=operaciones.charAt(i);
@@ -133,7 +138,6 @@ public class Calculadora {
             correcto =false;
         return correcto;
     }
-
     private int prioridades(Character op) {
         int ans = -1;
 
