@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package src;
 
 import java.util.ArrayList;
@@ -16,7 +13,7 @@ import pilas.ExceptionColeccionVacia;
  */
 
 public class Calculadora {
-    private String operaciones; //Vamos a crear una clase calculadora y su único atributo va a ser la cadena.
+    private String operaciones; //Se crea una clase calculadora y su único atributo va a ser la cadena.
     
     public Calculadora(){
         
@@ -34,7 +31,7 @@ public class Calculadora {
         return operaciones;
     }
     
-    //Este es un método para analizar si el carácter es operador y mejorar la sintáxis de los programas.
+    //Este es un método para analizar si el carácter es operador y mejorar la sintáxis de los programas. No se incluye el !, que simboliza (-), porque este operador trabaja diferente.
     private boolean esOperador (Character ch){
         boolean res=false;
         
@@ -94,7 +91,10 @@ public class Calculadora {
         return res;
     }
     
-public boolean revisadorSignos() {
+    //Este método va a revisar que no hayan dos signos seguidos, i.e, un 1++1. Solo se va a poder que existan dos símbolos seguidos, los cuales incluyan al ! que simboliza (-).
+    //También que la cadena no empiece con níngun operador, el único permitido es el !.
+    //Y que la cadena no acabe con ningun operador, en esta ocasión tampoco se permite el !
+    public boolean revisadorSignos() {
         boolean correcto = true; //Esta es la bandera.
         PilaA<Character> signos = new PilaA();
         PilaA<Character> negativo = new PilaA(); //Se crea una pila aparte para revisar que no existan dos !!, ni tampoco un !+, !-, !*, etc.
@@ -102,27 +102,27 @@ public boolean revisadorSignos() {
         Character ch;
         
         ch=operaciones.charAt(0);
-        if(esOperador(ch))
+        if(ch == '+' || ch == '*' || ch == '/' || ch == '^') //Este if es necesario, ya que el primer char no puede ser un operador, a excepción del -.
             correcto=false;
         else
             i++;
-        tamanho=operaciones.length();
+        tamanho=operaciones.length(); 
         while(i<tamanho && correcto){
             ch=operaciones.charAt(i);
-            if(esOperador(ch))
-                    if(!negativo.isEmpty() || !signos.isEmpty())
+            if(esOperador(ch)) 
+                    if(!negativo.isEmpty() || !signos.isEmpty()) //Si hay un operador, las pilas de signos y negativo tienen que estar vacías, esto para evitar que hayan dos oepradores seguidos.
                         correcto=false;
-                    else
+                    else //Si están vacías, se agrega el operador.
                         signos.push(ch);
             else{
-                if(ch.equals('!')){
-                    if(!negativo.isEmpty())
+                if(ch.equals('!')){ 
+                    if(!negativo.isEmpty()) //Si la pila negativo no está vacía, significa que hay dos ! seguidos, i.e, !!. Por tanto es un error.
                         correcto=false;
                     else
                         negativo.push(ch);
                 }
                 else{
-                    if(ch != '('){
+                    if(ch != '('){ //Esta condición es importante para también incluir el caso donde el usuario pueda poner !(*5+2)
                         if (!signos.isEmpty()) 
                             signos.pop();
                         if(!negativo.isEmpty())
@@ -132,14 +132,17 @@ public boolean revisadorSignos() {
             }
             i++;
         }
+        //Ambas pilas tienen que terminar vacías, ya que si no esto significa que la cadena acabo con algún operador o con el símbolo !
         if (!signos.isEmpty() && correcto) 
             correcto = false;
         if(!negativo.isEmpty() && correcto)
             correcto =false;
         return correcto;
     }
+
+    //Este método ya no es para revisar, pero sirve para respetar las jerarquías de operaciones cuando se cambie a postfijo.
     private int prioridades(Character op) {
-        int ans = -1;
+        int ans = -1; //Se inicia la variable con un -1, para que los números tengan la prioridad más baja.
 
         switch (op) {
             case '^':
@@ -164,90 +167,98 @@ public boolean revisadorSignos() {
         return ans;
     }
 
+    //Este método convierte la operación de infijo a postfijo, la cual la almacena en un ArrayList para facilitar su evaluación.
     public ArrayList convertidor() {
-        int i=0;
         double numero;
         ArrayList postfijo = new ArrayList();
         Character ch;
         PilaA pila = new PilaA();
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(); //Para poder pasar los números de String a Double se va a utilizar un StringBuilder.
+        StringBuilder aux = new StringBuilder();
         boolean bandera;
-
-       while(i<operaciones.length()) {
+        
+        ch=operaciones.charAt(0);
+        if(ch=='-'){ //Se va a cambiar el primer símbolo '-' a '!', para que resultados que den en negativo se puedan seguir usando.
+            aux.append(operaciones);
+            aux.setCharAt(0, '!');
+            operaciones=aux.toString();
+        }  
+        for(int i=0; i<operaciones.length(); i++) {
             ch = operaciones.charAt(i);
-            if (prioridades(ch) < 0) {
+            if (prioridades(ch) < 0) { //Esto significa que es un número, por lo que se agrega al StrinBuilder.
                 sb.append(ch);
             } else {
+                //Significa que es un operador
                 switch (ch) {
                     case '(':
-                        pila.push(ch);
+                        pila.push(ch); //Esto va a servir para respetar la jerarquía de operaciones
                         break;
                     case ')':
-                        System.out.println(sb.toString());
+                        //Se va a buscar el otro paréntesis para que se balancee la operación.
                         while ((Character) pila.peek() != '(') {
-                            if(sb.length() != 0){
-                                numero = Double.parseDouble(sb.toString());
-                                sb.setLength(0);
+                            if(sb.length() != 0){ //Es necesario porque pueden haber más de una operación entre los paréntesis, lo que haría que algunas veces no hayan números guardados.
+                                numero = Double.parseDouble(sb.toString()); //El número se convierte a un double.
+                                sb.setLength(0); //Se reinicia el StringBuilder.
                                 postfijo.add(numero);
                             }
-                            postfijo.add(pila.pop());
-                            pila.push(ch);
-                            pila.pop();
+                            postfijo.add(pila.pop()); //Como ya fueron ordenados por el caso default, entonces se van a ir agregando todos los operadores que faltaron hasta encontrar en donde incio el paréntesis.
                         }
-                        pila.pop();
+                        pila.pop(); //Sacar el paréntesis.
                         break;
                     case '!':
-                        i++;
+                        i++; //Se agrega el i++, porque ya se sabe que hay un !, y se quiere saber todo lo que va a modificar este símbolo.
                         ch = operaciones.charAt(i);
-                        if(operaciones.charAt(i)!= '('){
+                        if(operaciones.charAt(i)!= '('){ //Esto significa que solo va a modificar a un número.
                             bandera=true;
-                            while(prioridades(ch) < 0 && bandera){
+                            while(prioridades(ch) < 0 && bandera){ //La condición significa que se va a buscar hasta que exista otro operador.
                                 sb.append(ch);
                                 i++;
-                                if(i >= operaciones.length())
+                                if(i >= operaciones.length()) //Es necesario porque si el número que contenía el !, era el último el ciclo se iba a salir de rango.
                                     bandera=false;
                                 else
                                     ch=operaciones.charAt(i);
                             }   
-                            numero = Double.parseDouble(sb.toString());
+                            numero = Double.parseDouble(sb.toString()); //Se pasa todo el número que está siendo modificado por el !, a un double.
                             sb.setLength(0);
-                            numero = numero*-1;
+                            numero = numero*-1; //Se multiplica por -1, porque eso hace ese símbolo.
                             postfijo.add(numero);
                         }
                         else{
-                            pila.push('!');
+                            pila.push('!'); //Si va a modificar a un paréntesis solo se agrega a la pila, para después hacer la evaluación.
                         }
-                        i--;
+                        i--; //Se tiene que restar uno, porque al empezar esta parte del código con un i++ para observar si lo que sigue es un paréntesis o un número, se está perdiendo cierta información.
                         break;
                     default:
-                        if (sb.length() != 0) {
+                        if (sb.length() != 0) { //Mismo caso que en el ')'.
                             numero = Double.parseDouble(sb.toString());
                             sb.setLength(0);
                             postfijo.add(numero);
                         }
-                        if (pila.isEmpty()) {
+                        if (pila.isEmpty()) { //Significa que no hay operadores guardados
                             pila.push(ch);
                         } else {
-                            while (!pila.isEmpty() && prioridades((Character) pila.peek()) >= prioridades(ch)) {
+                            while (!pila.isEmpty() && prioridades((Character) pila.peek()) >= prioridades(ch)) { 
+                                //Esto va a comparar la prioridad del operador con las de los operadores que ya estaban guardados
+                                //Para que agregue todos los operadores que tienen más jerarquías que el nuevo o los operadores que estaban antes en la operación.
                                 postfijo.add(pila.pop());
                             }
-                            pila.push(ch);
+                            pila.push(ch); //Se agrega ese operador a la pila.
                         }
                         break;
                 }
             }
-            i++;
         }
-        if (sb.length() != 0) {
+        if (sb.length() != 0) { //Esto significa que hay un número el cual no fue guardado en la notación posfija. 
             numero = Double.parseDouble(sb.toString());
             postfijo.add(numero);
         }
-        while (!pila.isEmpty()) {
+        while (!pila.isEmpty()) { //Esto significa que falta un último operador para poner en la notación posfija.
             postfijo.add(pila.pop());
         }
         return postfijo;
     }
     
+    //Después de pasar la operación a postfijo, ahora se va a evaluar tomando los dos números anterior y el símbolo.
     public double evalua(ArrayList postfijo) {
         double ans;
         double v;
@@ -255,14 +266,17 @@ public boolean revisadorSignos() {
         PilaA<Double> pila = new PilaA();
         Character p;
         
+        //El ciclo for, va a estar operaciones hasta que se acabe el postfijo, y eso por el algoritmo que hay detrás, va a hacer que solo quede un número en la pila.
         for (int i = 0; i < postfijo.size(); i++){
+            //Se utiliza un try catch, para diferenciar cuando sí es un número y cuando es un operador.
             try {
-                pila.push((Double) postfijo.get(i));
-            } catch (ClassCastException err) {
-                p = (Character) postfijo.get(i);
+                pila.push((Double) postfijo.get(i)); //Si es un número se guarda directamente en una pila.
+            } catch (ClassCastException err) { 
+                p = (Character) postfijo.get(i); //Cuando es un operador.
                 switch (p) {
-                    default:
-                        break;
+                    //Se observa que operador es, y se sacan los dos números que están guardados en la pila (esto se sabe porque la operación está puesta en notación postfija).
+                    //Se realiza la operación.
+                    //Es importante notar los casos de '-', '!', '/' y '^'
                     case '+':
                         x = (double) pila.pop();
                         y = (double) pila.pop();
@@ -270,12 +284,15 @@ public boolean revisadorSignos() {
                         pila.push(v);
                         break;
                     case '-':
+                        //El segundo número de la notación postfija es en realidad el número que se le resta al primer número.
+                        //Por lo tanto el número que está hasta arriba de la pila, es el que se le va a restar.
                         x = (double) pila.pop();
                         y = (double) pila.pop();
                         v = y - x;
                         pila.push(v);
                         break;
                     case '!':
+                        //Este símbolo multiplica por -1, a el número que estaba anterior a este símbolo. Por lo tanto solo se multiplica el primer número de la pila.
                         x = (double) pila.pop();
                         v = x*-1;
                         pila.push(v);
@@ -287,22 +304,25 @@ public boolean revisadorSignos() {
                        pila.push(v);
                         break;
                     case '/':
+                        //Mismo caso que con la resta.
                         x = (double) pila.pop();
                         y = (double) pila.pop();
                         v = y / x;
                         pila.push(v);
                         break;
                     case '^':
+                        //Mismo caso que con la resta.
                         x = (double) pila.pop();
                         y = (double) pila.pop();
                         v = Math.pow(y, x);
                         pila.push(v);
                         break;
+                    default:
+                        break;
                 }
             }
-
         }
-        ans = (double) pila.pop();
+        ans = (double) pila.pop(); //El único número que quedo en la pila es el resultado.
         return ans;
     }
 
@@ -310,13 +330,14 @@ public boolean revisadorSignos() {
         Calculadora calc;
         ArrayList convertidor;
         
-        calc=new Calculadora("1.0+2.0");
+        calc=new Calculadora("((7^4)-(3^3))*(2^5)+(9^2)/10");
+        System.out.println(calc.revisadorSignos());
         if(calc.revisadorParentesis() && calc.revisadorPuntos() && calc.revisadorSignos()){
             convertidor=calc.convertidor();
             System.out.println(convertidor);
             System.out.println(calc.evalua(convertidor));
         }
         else
-            System.out.println("SYNTAX_ERROR");
+            System.out.println("ERROR");
     }
 }
